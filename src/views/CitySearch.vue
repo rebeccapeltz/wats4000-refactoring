@@ -10,13 +10,17 @@
             <p><router-link v-bind:to="{ name: 'CurrentWeather', params: { cityId: city.id } }">View Current Weather</router-link></p>
 
             <!-- TODO: Make weather summary be in a child component. -->
-            <div v-for="(weatherSummary,index) in city.weather" class="weatherSummary" :key="index">
+             <weather-summary v-bind:weatherData="city.weather"></weather-summary>
+
+            <!-- <div v-for="(weatherSummary,index) in city.weather" class="weatherSummary" :key="index">
                 <img v-bind:src="'http://openweathermap.org/img/w/' + weatherSummary.icon + '.png'" v-bind:alt="weatherSummary.main">
                 <br>
                 <b>{{ weatherSummary.main }}</b>
-            </div>
+            </div> -->
             <!-- TODO: Make dl of weather data be in a child component. -->
-            <dl>
+             <weather-conditions v-bind:conditions="city.main"></weather-conditions>
+
+            <!-- <dl>
                 <dt>Current Temp</dt>
                 <dd>{{ city.main.temp }}&deg;F</dd>
                 <dt>Humidity</dt>
@@ -25,20 +29,25 @@
                 <dd>{{ city.main.temp_max }}&deg;F</dd>
                 <dt>Low</dt>
                 <dd>{{ city.main.temp_min }}&deg;F</dd>
-            </dl>
+            </dl> -->
         </li>
     </ul>
-    <div v-else-if="errors.length > 0">
+    <error-list v-bind:errorList="errors"></error-list>
+    <!-- <div v-else-if="errors.length > 0">
       <h2>There was an error fetching weather data.</h2>
       <ul class="errors">
         <li v-for="(error,index) in errors" :key="index">{{ error }}</li>
       </ul>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import {API} from '@/common/api';
+import WeatherSummary from '@/components/WeatherSummary'
+import WeatherConditions from '@/components/WeatherConditions'
+import ErrorList from '@/components/ErrorList'
 
 export default {
   name: 'CitySearch',
@@ -52,13 +61,18 @@ export default {
   methods: {
     getCities: function () {
       // TODO: Improve base config for API
-      axios.get('//api.openweathermap.org/data/2.5/find', {
+      API.get('find', {
         params: {
-            q: this.query,
-            units: 'imperial',
-            APPID: 'YOUR_APPID_HERE'
+            q: this.query
         }
       })
+      // axios.get('//api.openweathermap.org/data/2.5/find', {
+      //   params: {
+      //       q: this.query,
+      //       units: 'imperial',
+      //       APPID: 'e2974148d9fbd649739ac00943298672'
+      //   }
+      // })
       .then(response => {
         this.results = response.data
       })
@@ -66,6 +80,11 @@ export default {
         this.errors.push(error)
       });
     }
+  },
+  components: {
+    'weather-summary': WeatherSummary,
+    'weather-conditions': WeatherConditions,
+    'error-list': ErrorList
   }
 }
 </script>
